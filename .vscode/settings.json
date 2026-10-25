@@ -1,0 +1,8 @@
+{
+  "dart.flutterSdkPath": "/home/subish-loq/development/flutter",
+  "terminal.integrated.env.linux": {
+    "ANDROID_HOME": "/home/subish-loq/Android/Sdk",
+    "PATH": "/home/subish-loq/Android/Sdk/platform-tools:${env:PATH}"
+  },
+  "java.compile.nullAnalysis.mode": "automatic"
+}
