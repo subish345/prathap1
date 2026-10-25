@@ -51,60 +51,61 @@ flutter pub get
 
 ## 3. Start the Python backend
 
-Open a second terminal in the `backend` folder.
-
-**Windows PowerShell:**
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-If PowerShell blocks activation, use Command Prompt instead:
-
-```bat
-py -m venv .venv
-.venv\Scripts\activate.bat
-python -m pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Test the API at `http://127.0.0.1:8000/docs` on your computer.
-
-## 4. Run on Android
-
-Start an emulator in Android Studio, or connect an Android phone with USB debugging enabled. In a terminal at the Flutter project root:
+Open a terminal in the `backend` folder:
 
 ```bash
-flutter devices
-flutter run
+# Easy way (auto-detects and displays your Wi-Fi IP address):
+python run_server.py
 ```
 
-Keep the backend terminal running while using the app.
+Or manually with uvicorn:
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### Backend URL
+> **Important**: The backend MUST listen on `0.0.0.0` (not just `127.0.0.1`), so devices on your Wi-Fi network can reach it.
 
-- **Android emulator:** `http://10.0.2.2:8000` (default in the app; this special address points to the development computer).
-- **Physical Android phone:** both devices must be on the same Wi-Fi network. In Profile, change Python API address to `http://YOUR_COMPUTER_LAN_IP:8000`, for example `http://192.168.1.20:8000`. Allow Python through Windows Firewall if prompted.
-- **Deployed backend:** use your server's HTTPS URL.
+## 4. Run on Android Device
 
-## 5. Build an APK
+### Why did "Backend not found" happen when removing the USB cable?
+- Over USB, `flutter run` runs a **temporary debug session** and forwards requests via ADB.
+- `127.0.0.1` on your phone points to the **phone itself**, where no backend is running.
+- As soon as you unplug the USB cable, the ADB tunnel closes.
 
+### How to run wirelessly on a physical phone:
+1. Ensure your **computer and phone are connected to the same Wi-Fi network**.
+2. Run `python backend/run_server.py` in your computer terminal. Note the Wi-Fi IP displayed (e.g. `http://192.168.1.39:8000`).
+3. Open the DrivePlus app on your phone.
+4. On the login screen, tap the **Server / IP** banner at the top or the settings icon.
+5. Enter your computer's Wi-Fi IP (e.g. `http://192.168.1.39:8000`) and tap **"Test Connection"**.
+6. Once it says "Connected! Backend is reachable", tap **"Save & Apply"** and sign in.
+
+## 5. Build, Install Standalone & Share the Application
+
+If you use `flutter run`, it is only a temporary debug session. To permanently install the app on your phone so it doesn't need the computer, or to share the app with others:
+
+### Step 1: Build the Release APK
+From the project root:
 ```bash
 flutter build apk --release
 ```
 
-APK location: `build/app/outputs/flutter-apk/app-release.apk`.
+### Step 2: Locate the APK File
+The complete, standalone APK is created at:
+```
+build/app/outputs/flutter-apk/app-release.apk
+```
 
-## Important limitations
+### Step 3: Share the Application
+- **Send the APK**: You can send `app-release.apk` to any Android phone via WhatsApp, Telegram, Google Drive, Quick Share, or USB.
+- **Install**: On the Android phone, tap the APK file and select "Install" (enable "Install from unknown sources" if prompted).
 
-- This is a functional starter implementation, not a store-ready production release. The backend's token scheme is explicitly a starter/demo token and should be replaced with robust signed-token/OAuth authentication before public deployment.
-- Account registration validates email format but does not send an email or OTP.
-- SOS records a demo request only; it does not contact emergency services. For a real emergency in India, call 112.
-- Google Maps opens route/search links externally. It does not embed live map tiles or automatically calculate distance in this version; enter route distance to calculate fuel cost.
-- Reminder records are saved in the backend, but scheduled push notifications have not been configured.
-- Vehicle photo selection/editing and live GPS permissions are not yet implemented in this Flutter conversion.
-# prathap1
-# prathap1
+### Step 4: Connecting the Shared App to the Backend
+- **On the same Wi-Fi**: Anyone on your Wi-Fi can enter your PC's IP (`http://192.168.1.39:8000`) in the app's Server Settings.
+- **Over the Internet / Mobile Data**:
+  - Run a free tunnel like ngrok on your computer:
+    ```bash
+    ngrok http 8000
+    ```
+  - Copy the HTTPS URL provided by ngrok (e.g. `https://xxxx.ngrok-free.app`).
+  - Enter that URL into the DrivePlus app's Server Settings on any phone anywhere!
